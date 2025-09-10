@@ -3,7 +3,7 @@ from datetime import datetime, UTC
 from database.engine import Base
 from sqlalchemy.dialects.postgresql import UUID
 from sqlalchemy.orm import Mapped, mapped_column
-from sqlalchemy import Column, String, Boolean, DateTime
+from sqlalchemy import String, Boolean, DateTime
 
 class Task(Base):
     __tablename__ = "tasks"
