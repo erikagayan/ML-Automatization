@@ -2,7 +2,7 @@
 
 ## Overview
 
-A simple FastAPI app for managing tasks with PostgreSQL, SQLAlchemy (async), and Alembic. Supports CRUD operations: create, read, update, and delete tasks.
+A simple FastAPI app for managing tasks with PostgreSQL, SQLAlchemy (async), and Alembic. Supports CRUD operations: create, read, update, and delete tasks. Additionally, it includes a Celery task to fetch user data from an API and save it to a CSV file.
 
 ## Tech Stack
 - FastAPI
@@ -10,6 +10,9 @@ A simple FastAPI app for managing tasks with PostgreSQL, SQLAlchemy (async), and
 - PostgreSQL
 - Alembic
 - Pydantic
+- Celery
+- Redis
+- Requests
 
 ## Setup
 1. **Clone the repo**:
@@ -26,7 +29,7 @@ A simple FastAPI app for managing tasks with PostgreSQL, SQLAlchemy (async), and
 
 3. **Install dependencies**:
    ```bash
-   pip install requirements.txt
+   pip install -r requirements.txt
    ```
 
 4. **Set up PostgreSQL**:
@@ -38,22 +41,72 @@ A simple FastAPI app for managing tasks with PostgreSQL, SQLAlchemy (async), and
    alembic upgrade head
    ```
 
+6. **Set up Redis** (required for Celery):
+   - Install Redis:
+     ```bash
+     brew install redis  # macOS
+     # or
+     sudo apt install redis-server  # Linux
+     ```
+   - Start Redis:
+     ```bash
+     redis-server
+     ```
+   - Verify Redis is running:
+     ```bash
+     redis-cli ping  # Should return "PONG"
+     ```
+
 ## Running
-1. Activate virtual environment:
+1. **Activate virtual environment**:
    ```bash
    source .venv/bin/activate
    ```
 
-2. Start the app:
+2. **Start the FastAPI app**:
    ```bash
    uvicorn main:app --reload
    ```
 
-3. Open Swagger UI: `http://127.0.0.1:8000/docs`
+3. **Open Swagger UI**:
+   - Visit `http://127.0.0.1:8000/docs`
+
+4. **Start Celery Worker** (to process tasks):
+   ```bash
+   celery -A celery_app worker --loglevel=info
+   ```
+
+5. **Start Celery Beat** (to schedule tasks every 5 minutes):
+   ```bash
+   celery -A celery_app beat --loglevel=info
+   ```
 
 ## Testing
-Use Swagger UI to test:
+### FastAPI Endpoints
+Use Swagger UI (`http://127.0.0.1:8000/docs`) to test:
 - **GET /tasks**: List all tasks.
 - **POST /tasks**: Create a task (e.g., `{"title": "Test Task", "description": "Test", "completed": false}`).
 - **PUT /tasks/{task_id}**: Update a task by UUID.
 - **DELETE /tasks/{task_id}**: Delete a task by UUID.
+- **POST /trigger-fetch**: Trigger the Celery task to fetch users from an API and save to `users.csv`.
+
+### Celery Task
+- **Manual Trigger**: Run the Celery task manually:
+  ```bash
+  python -c "from tasks import fetch_and_save_users_task; fetch_and_save_users_task.delay()"
+  ```
+- **Check Result**: Verify that `users.csv` is created/updated in the project root:
+  ```bash
+  cat users.csv
+  ```
+  Expected output:
+  ```
+  id,name,email
+  1,Leanne Graham,Sincere@april.biz
+  2,Ervin Howell,Shanna@melissa.tv
+  ...
+  ```
+- **Direct Run**: Test the task without Celery:
+  ```bash
+  python tasks.py
+  ```
