@@ -1,3 +1,4 @@
+import os
 from celery_app import app
 from services.api_service import fetch_users
 from services.csv_service import save_users_to_csv
@@ -12,8 +13,10 @@ def fetch_and_save_users_task():
     """
     try:
         users = fetch_users()
-        save_users_to_csv(users, filename="/app/users.csv")
-        logger.info("Users fetched and saved to /app/users.csv")
+        # Use relative path for CSV file
+        csv_path = os.path.join(os.path.dirname(__file__), "users.csv")
+        save_users_to_csv(users, filename=csv_path)
+        logger.info(f"Users fetched and saved to {csv_path}")
     except Exception as e:
         logger.error(f"Task failed: {e}")
         raise

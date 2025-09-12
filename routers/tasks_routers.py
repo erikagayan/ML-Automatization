@@ -5,6 +5,9 @@ from uuid import UUID
 import crud
 import schemas
 from dependencies import get_db
+from joblib import load
+from pydantic import BaseModel
+from tasks import fetch_and_save_users_task
 
 router = APIRouter(prefix="/tasks", tags=["tasks"])
 
@@ -30,3 +33,23 @@ async def delete_task(task_id: UUID, db: AsyncSession = Depends(get_db)):
     if not deleted_task:
         raise HTTPException(status_code=404, detail="Task not found")
     return {"message": "Task deleted"}
+
+class PredictInput(BaseModel):
+    task_description: str
+
+@router.post("/predict")
+async def predict_priority(task: PredictInput):
+    """
+    Predict task priority (high/low) using the trained ML model.
+    """
+    model = load("ml/model.joblib")
+    prediction = model.predict([task.task_description])[0]
+    return {"predicted_priority": prediction}
+
+@router.post("/trigger-fetch")
+async def trigger_fetch():
+    """
+    Trigger the Celery task to fetch users from an API and save to CSV.
+    """
+    task = fetch_and_save_users_task.delay()
+    return {"message": "Task triggered successfully", "task_id": task.id}
