@@ -16,6 +16,6 @@ if __name__ == "__main__":
         users = fetch_users()
         print("Fetched users: ")
         for user in users:
-            print(f"ID: {user["id"]}, Name: {user["name"]}, Email: {user["email"]}")
+            print(f"ID: {user['id']}, Name: {user['name']}, Email: {user['email']}")
     except requests.RequestException as e:
         print(f"Error fetching users: {e}")

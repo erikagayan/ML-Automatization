@@ -80,6 +80,43 @@ A simple FastAPI app for managing tasks with PostgreSQL, SQLAlchemy (async), and
    ```bash
    celery -A celery_app beat --loglevel=info
    ```
+   
+## Running with Docker
+1. **Install Docker**:
+   - Download and install [Docker Desktop](https://www.docker.com/get-started) for macOS/Windows or Docker for Linux.
+
+2. **Build and start containers**:
+   - Run the following command to build and start FastAPI, Celery Worker, and Redis:
+     ```bash
+     docker-compose up --build
+     ```
+
+3. **Access services**:
+   - **FastAPI**: Open `http://127.0.0.1:8000/docs` to access Swagger UI.
+   - **Celery Worker**: Processes tasks triggered via the `/trigger-fetch` endpoint or scheduled every 5 minutes.
+   - **Redis**: Runs on port 6379 (used internally by Celery).
+
+4. **Stop containers**:
+   - To stop and remove containers:
+     ```bash
+     docker-compose down
+     ```
+
+5. **View logs**:
+   - Check FastAPI logs:
+     ```bash
+     docker-compose logs web
+     ```
+   - Check Celery Worker logs:
+     ```bash
+     docker-compose logs celery_worker
+     ```
+   - Check Redis logs:
+     ```bash
+     docker-compose logs redis
+     ```
+
+
 
 ## Testing
 ### FastAPI Endpoints
