@@ -10,7 +10,7 @@ sys.path.insert(0, str(project_root))
 app = Celery("tasks", broker="redis://localhost:6379/0")
 # app = Celery("tasks", broker="redis://redis:6379/0")
 
-# Optionally, keep autodiscover for other tasks
+# Searches for tasks in the tasks.py file
 app.autodiscover_tasks(['tasks'])
 
 app.conf.beat_schedule = {
