@@ -1,5 +1,5 @@
-from typing import Any, Coroutine, Sequence
 from uuid import UUID
+from typing import Sequence
 from sqlalchemy import select
 from database.models import Task
 from schemas import TaskCreate, TaskUpdate
